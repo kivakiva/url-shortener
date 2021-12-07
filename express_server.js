@@ -14,7 +14,7 @@ const urlDatabase = {
 };
 
 function generateRandomString() {
-  return Math.random().toString(16).substr(2, 8)
+  return Math.random().toString(16).substring(2, 8)
 }
 
 app.get("/", (req, res) => {
@@ -43,6 +43,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  console.log(generateRandomString());
   console.log(req.body);  // Log the POST request body to the console
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
