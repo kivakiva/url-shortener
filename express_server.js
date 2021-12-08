@@ -42,12 +42,20 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL]
+  res.redirect('/urls')
+
+
+})
 app.post("/urls", (req, res) => {
   const short = generateRandomString();
   urlDatabase[short] = req.body.longURL;
   console.log(req.body);
   res.redirect(`/urls/${short}`);         // Respond with 'Ok' (we will replace this)
 });
+
 
 app.get("/urls/:shortURL", (req, res) => {
 
