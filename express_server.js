@@ -77,6 +77,14 @@ app.post("/login", (req, res) => {
   res.redirect('/urls/');
 })
 
+//logout
+
+app.post("/logout", (req, res) => {
+  const username = req.cookies.username
+  res.clearCookie('username', username)
+  res.redirect('/urls/');
+})
+
 // generate a new shorturl
 
 app.post("/urls", (req, res) => {
