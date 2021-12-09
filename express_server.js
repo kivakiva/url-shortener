@@ -49,6 +49,20 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 
 })
+
+//update longURL
+
+app.post("/urls/update/:id", (req, res) => {
+  const newlongURL = req.body.update;
+  const shortURL = req.params.id;
+  console.log('newl:  ', newlongURL);
+  console.log('short:  ', shortURL);
+  urlDatabase[shortURL] = newlongURL
+  console.log(urlDatabase)
+  res.redirect('/urls')
+
+
+})
 app.post("/urls", (req, res) => {
   const short = generateRandomString();
   urlDatabase[short] = req.body.longURL;
