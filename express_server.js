@@ -71,16 +71,20 @@ app.post("/urls/update/:id", (req, res) => {
 
 //login
 
-app.post("/urls/login", (req, res) => {
-  const username = req.body.login;
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username)
   console.log(username);
   res.redirect('/urls/');
 })
+
+// generate a new shorturl
+
 app.post("/urls", (req, res) => {
   const short = generateRandomString();
   urlDatabase[short] = req.body.longURL;
   console.log(req.body);
-  res.redirect(`/urls/${short}`);         // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${short}`);
 });
 
 
