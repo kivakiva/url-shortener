@@ -45,6 +45,8 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+//delete record
+
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL]
@@ -65,6 +67,14 @@ app.post("/urls/update/:id", (req, res) => {
   res.redirect('/urls')
 
 
+})
+
+//login
+
+app.post("/urls/login", (req, res) => {
+  const username = req.body.login;
+  console.log(username);
+  res.redirect('/urls/');
 })
 app.post("/urls", (req, res) => {
   const short = generateRandomString();
