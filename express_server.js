@@ -40,6 +40,16 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//register
+
+app.get("/urls/register", (req, res) => {
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"],
+   };
+  res.render("urls_register", templateVars);
+});
+
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
