@@ -35,7 +35,6 @@ function generateRandomString() {
 
 function emailLookup(email, users) {
   for (let user in users) {
-    console.log(users[user].email)
     if (users[user].email === email) {
         return true
       }} return false
@@ -110,18 +109,22 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   for (let user in users) {
-    if (email === users[user].email) {
-      if (password === users[user].password) {
+    console.log('email: ', email);
+    console.log('user:  ', user)
+    if (email === users[user].email && password === users[user].password) {
         //login
         //set cookie
         res.cookie('user_id', user)
         res.redirect("/urls/");
-      }
-      res.send("403: Email and password do not match")
+        return;
     }
+  }
+  if (emailLookup(email)) {
+  res.send("403: Email and password do not match")
+  return;
+  }  else {
     res.send("403: User does not exist")
   }
-
 })
 
 app.get("/urls/new", (req, res) => {
