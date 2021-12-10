@@ -96,6 +96,21 @@ app.post("/urls/register", (req, res) => {
   }
 })
 
+//GET login
+
+app.get("/login", (req,res) => {
+  const user = users[req.cookies.user_id]
+  const templateVars = { user }
+  res.render("login", templateVars)
+} )
+
+//POST login
+
+app.post("/login", (req, res) => {
+
+  res.redirect("/urls/");
+})
+
 app.get("/urls/new", (req, res) => {
   const user = users[req.cookies.user_id];
   const templateVars = { 
