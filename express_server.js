@@ -33,6 +33,14 @@ function generateRandomString() {
   return Math.random().toString(16).substring(2, 8)
 }
 
+function emailLookup(email, users) {
+  for (let user in users) {
+    console.log(users[user].email)
+    if (users[user].email === email) {
+        return true
+      }} return false
+}
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -70,15 +78,22 @@ app.get("/urls/register", (req, res) => {
 app.post("/urls/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const id = generateRandomString();
-  users[id] = {
-    email,
-    password,
-    id
-  } 
-  res.cookie('user_id', id);
-  console.log(users);
-  res.redirect("/urls");
+  if (emailLookup(email, users)) {
+    res.send("Error 404: An account already exists for this email");
+  } else if (email && password) {
+    const id = generateRandomString();
+    users[id] = {
+      email,
+      password,
+      id
+    } 
+    res.cookie('user_id', id);
+    console.log(users);
+    res.redirect("/urls");
+
+  } else {
+    res.send("Error 404: email and password cannot be left blank")
+  }
 })
 
 app.get("/urls/new", (req, res) => {
