@@ -12,9 +12,16 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+      longURL: "https://www.tsn.ca",
+      userID: "aJ48lW"
+  },
+  i3BoGr: {
+      longURL: "https://www.google.ca",
+      userID: "aJ48lW"
+  }
 };
+
 
 const users = { 
   "userRandomID": {
@@ -157,7 +164,7 @@ app.post("/urls/update/:id", (req, res) => {
   const shortURL = req.params.id;
   console.log('newl:  ', newlongURL);
   console.log('short:  ', shortURL);
-  urlDatabase[shortURL] = newlongURL
+  urlDatabase[shortURL].longURL = newlongURL
   console.log(urlDatabase)
   res.redirect('/urls')
 
@@ -187,7 +194,12 @@ app.post("/urls", (req, res) => {
   const user = users[req.cookies.user_id];
   if (user) {
     const short = generateRandomString();
-    urlDatabase[short] = req.body.longURL;
+    console.log(req.body.longURL)
+    urlDatabase[short] = {
+      longURL : req.body.longURL,
+      userID : user
+    }
+
     res.redirect(`/urls/${short}`);
   } else {
     res.send("403: You must be logged in to continue")
@@ -196,15 +208,16 @@ app.post("/urls", (req, res) => {
 
 
 app.get("/urls/:shortURL", (req, res) => {
+  const user = req.cookies.user_id;
   const templateVars = 
   { user,
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+    longURL: urlDatabase[req.params.shortURL].longURL
    };
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
+  const longURL = urlDatabase[req.params.shortURL].longURL
   res.redirect(longURL);
 });
