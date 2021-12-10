@@ -64,7 +64,7 @@ app.get("/urls", (req, res) => {
 
 //GET register
 
-app.get("/urls/register", (req, res) => {
+app.get("/register", (req, res) => {
   const user = users[req.cookies.user_id];
   const templateVars = { 
     urls: urlDatabase,
@@ -75,7 +75,7 @@ app.get("/urls/register", (req, res) => {
 
 //POST register
 
-app.post("/urls/register", (req, res) => {
+app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   if (emailLookup(email, users)) {
@@ -107,8 +107,21 @@ app.get("/login", (req,res) => {
 //POST login
 
 app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  for (let user in users) {
+    if (email === users[user].email) {
+      if (password === users[user].password) {
+        //login
+        //set cookie
+        res.cookie('user_id', user)
+        res.redirect("/urls/");
+      }
+      res.send("403: Email and password do not match")
+    }
+    res.send("403: User does not exist")
+  }
 
-  res.redirect("/urls/");
 })
 
 app.get("/urls/new", (req, res) => {

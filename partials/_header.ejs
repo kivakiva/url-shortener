@@ -23,12 +23,17 @@
     </div>
         
         <% } else { %>
-          <form class="form-inline" action="/login" method="POST">
+          <form class="form-inline" action="/login" method="GET">
             <div class="navbar-nav">
               <label for="username">
           </div></label>
-        <input class="navbar-nav" type="text" name="username" placeholder="username" style="width: 300px; margin: 1em">
         <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+          <form class="form-inline" action="/register" method="GET">
+            <div class="navbar-nav">
+              <label for="username">
+          </div></label>
+        <button type="submit" class="btn btn-primary">Register</button>
         </form>
         <% } %>
       </div>
