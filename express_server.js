@@ -133,7 +133,11 @@ app.get("/urls/new", (req, res) => {
     urls: urlDatabase,
     user
    };
-  res.render("urls_new", templateVars);
+   if (user) {
+     res.render("urls_new", templateVars);
+   } else {
+    res.redirect('/login')
+  }
 });
 
 //delete record
@@ -180,15 +184,18 @@ app.post("/logout", (req, res) => {
 // generate a new shorturl
 
 app.post("/urls", (req, res) => {
-  const short = generateRandomString();
-  urlDatabase[short] = req.body.longURL;
-  console.log(req.body);
-  res.redirect(`/urls/${short}`);
+  const user = users[req.cookies.user_id];
+  if (user) {
+    const short = generateRandomString();
+    urlDatabase[short] = req.body.longURL;
+    res.redirect(`/urls/${short}`);
+  } else {
+    res.send("403: You must be logged in to continue")
+  }
 });
 
 
 app.get("/urls/:shortURL", (req, res) => {
-  const user = users[req.cookies.user_id];
   const templateVars = 
   { user,
     shortURL: req.params.shortURL,
