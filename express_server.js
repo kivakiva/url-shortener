@@ -7,6 +7,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+const bcrypt = require('bcryptjs');
+
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
@@ -94,13 +96,14 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const hashPassword = bcrypt.hashSync(password, 10);
   if (emailLookup(email, users)) {
     res.send("Error 404: An account already exists for this email");
   } else if (email && password) {
     const id = generateRandomString();
     users[id] = {
       email,
-      password,
+      hashPassword,
       id
     } 
     res.cookie('user_id', id);
@@ -128,7 +131,7 @@ app.post("/login", (req, res) => {
   for (let user in users) {
     console.log('email: ', email);
     console.log('user:  ', user)
-    if (email === users[user].email && password === users[user].password) {
+    if (email === users[user].email && bcrypt.compareSync(password, users[user].hashPassword)) {
         //login
         //set cookie
         res.cookie('user_id', user)
