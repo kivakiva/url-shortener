@@ -47,6 +47,16 @@ function emailLookup(email, users) {
       }} return false
 }
 
+function filterUrlByUser(userID, database) {
+  let newDatabase = {};
+  for (entry in database) {
+    if (database[entry].userID === userID) {
+      newDatabase[entry] = database[entry];
+    }
+  }
+  return newDatabase;
+}
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -62,10 +72,10 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id];
   const templateVars = { 
-    urls: urlDatabase,
+    urls: filterUrlByUser(user, urlDatabase),
     user
    };
-  res.render("urls_index", templateVars);
+     res.render("urls_index", templateVars);
 });
 
 //GET register
@@ -162,11 +172,17 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/update/:id", (req, res) => {
   const newlongURL = req.body.update;
   const shortURL = req.params.id;
+  const user = req.cookies.user_id;
   console.log('newl:  ', newlongURL);
   console.log('short:  ', shortURL);
   urlDatabase[shortURL].longURL = newlongURL
   console.log(urlDatabase)
-  res.redirect('/urls')
+  if (urlDatabase[shortURL].userID === user) {
+
+    res.redirect('/urls')
+  } else {
+    res.send("Error 403: You may only edit your own urls")
+  }
 
 
 })

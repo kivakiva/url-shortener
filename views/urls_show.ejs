@@ -11,6 +11,13 @@
   <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
+
+        <% if (!user) { %>
+
+          <p> Error 403: Please log in to view your url </p>
+    
+        <% } else { %>
+
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
         <form class="form-inline" action="/urls/update/<%= shortURL %>" method="POST">
@@ -20,6 +27,9 @@
             <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </form>
+
+        <% } %>
+
       </div>
     <div class="card-footer text-muted"></div>
   </div>
