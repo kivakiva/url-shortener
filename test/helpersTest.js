@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const {generateRandomString, emailLookup, filterUrlByUser} = require('./helpers.js');
+const {generateRandomString, emailLookup, filterUrlByUser} = require('../helpers.js');
 
 const testUsers = {
   "userRandomID": {
@@ -16,9 +16,15 @@ const testUsers = {
 };
 
 describe('getUserByEmail', function() {
-  it('should return a user with valid email', function() {
-    const user = emailLookup("user@example.com", testUsers)
-    const expectedUserID = "userRandomID";
+  it('should return true with a valid email', function() {
+    const userExists = emailLookup("user@example.com", testUsers)
     // Write your assert statement here
+    assert.isTrue(userExists);
+  });
+
+  it('should return false for an invalid email', function() {
+    const userExists = emailLookup("non-user@example.com", testUsers)
+    // Write your assert statement here
+    assert.isFalse(userExists);
   });
 });
