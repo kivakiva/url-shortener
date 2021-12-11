@@ -90,13 +90,19 @@ app.get("/urls", (req, res) => {
 //GET register
 
 app.get("/register", (req, res) => {
+
   const user = users[req.session.user_id];
   const templateVars = {
     urls: urlDatabase,
     user
   };
+
+  if (user) {
+    res.send("Error 403: You are already logged in")
+    
+  } else {
   res.render("urls_register", templateVars);
-});
+  }});
 
 //POST register
 
@@ -129,10 +135,14 @@ app.post("/register", (req, res) => {
 app.get("/login", (req,res) => {
 
   const user = users[req.session.user_id];
-  const templateVars = { user };
 
-  res.render("login", templateVars);
-});
+  if (user) {
+    res.send("Error 403: You are already logged in")
+
+  } else {
+    const templateVars = { user };
+    res.render("login", templateVars);
+  }});
 
 //POST login
 
@@ -150,7 +160,7 @@ app.post("/login", (req, res) => {
     }
   }
 
-  if (emailLookup(email)) {
+  if (emailLookup(email, users)) {
     res.send("403: Email and password do not match");
     return;
 
@@ -163,7 +173,6 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
 
-  const user_id = req.session.user_id;
   req.session = null;
 
   res.redirect('/urls/');
