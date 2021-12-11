@@ -60,6 +60,8 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+//GET homepage
+
 app.get("/urls", (req, res) => {
   const user = users[req.session.user_id];
   const templateVars = {
@@ -83,11 +85,14 @@ app.get("/register", (req, res) => {
 //POST register
 
 app.post("/register", (req, res) => {
+
   const email = req.body.email;
   const password = req.body.password;
   const hashPassword = bcrypt.hashSync(password, 10);
+
   if (emailLookup(email, users)) {
     res.send("Error 404: An account already exists for this email");
+
   } else if (email && password) {
     const id = generateRandomString();
     users[id] = {
@@ -106,28 +111,33 @@ app.post("/register", (req, res) => {
 //GET login
 
 app.get("/login", (req,res) => {
+
   const user = users[req.session.user_id];
   const templateVars = { user };
+
   res.render("login", templateVars);
 });
 
 //POST login
 
 app.post("/login", (req, res) => {
+
   const email = req.body.email;
   const password = req.body.password;
+
   for (let user in users) {
+
     if (email === users[user].email && bcrypt.compareSync(password, users[user].hashPassword)) {
-      //login
-      //set cookie
       req.session.user_id = user;
       res.redirect("/urls/");
       return;
     }
   }
+
   if (emailLookup(email)) {
     res.send("403: Email and password do not match");
     return;
+
   }  else {
     res.send("403: User does not exist");
   }
@@ -136,21 +146,26 @@ app.post("/login", (req, res) => {
 //POST logout
 
 app.post("/logout", (req, res) => {
+
   const user_id = req.session.user_id;
   req.session = null;
+
   res.redirect('/urls/');
 });
 
 //GET new url page
 
 app.get("/urls/new", (req, res) => {
+
   const user = users[req.session.user_id];
   const templateVars = {
-    urls: urlDatabase,
-    user
+    user,
+    urls: urlDatabase
   };
+
   if (user) {
     res.render("urls_new", templateVars);
+
   } else {
     res.redirect('/login');
   }
@@ -159,12 +174,14 @@ app.get("/urls/new", (req, res) => {
 //POST delete existing url
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+
   const shortURL = req.params.shortURL;
   const user = req.session.user_id;
-  
+
   if (urlDatabase[shortURL].userID === user) {
     delete urlDatabase[shortURL];
     res.redirect('/urls');
+
   } else {
     res.send("Error 403: You may only delete your own urls");
   }
@@ -173,13 +190,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //POST update existing url
 
 app.post("/urls/update/:id", (req, res) => {
+
   const newlongURL = req.body.update;
   const shortURL = req.params.id;
   const user = req.session.user_id;
   urlDatabase[shortURL].longURL = newlongURL;
+
   if (urlDatabase[shortURL].userID === user) {
 
     res.redirect('/urls');
+
   } else {
     res.send("Error 403: You may only edit your own urls");
   }
@@ -188,15 +208,21 @@ app.post("/urls/update/:id", (req, res) => {
 // POST create new url
 
 app.post("/urls", (req, res) => {
+
   const user = users[req.session.user_id];
+
   if (user) {
+
     const short = generateRandomString();
     urlDatabase[short] = {
       longURL : req.body.longURL,
       userID : req.session.user_id
     };
+
     res.redirect(`/urls/${short}`);
+
   } else {
+
     res.send("403: You must be logged in to continue");
   }
 });
@@ -204,6 +230,7 @@ app.post("/urls", (req, res) => {
 //GET view existing url
 
 app.get("/urls/:shortURL", (req, res) => {
+
   const user = req.session.user_id;
   const shortURL = req.params.shortURL;
   const templateVars =
@@ -211,12 +238,15 @@ app.get("/urls/:shortURL", (req, res) => {
     shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL
   };
+
   res.render("urls_show", templateVars);
 });
 
 //GET redirect from short to long
 
 app.get("/u/:shortURL", (req, res) => {
+
   const longURL = urlDatabase[req.params.shortURL].longURL;
+  
   res.redirect(longURL);
 });
