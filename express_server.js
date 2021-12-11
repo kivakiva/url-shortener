@@ -4,8 +4,14 @@ const app = express();
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: ["secret-key-1", "secret-key-2"],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 
 const bcrypt = require('bcryptjs');
 
@@ -72,9 +78,10 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const user = users[req.cookies.user_id];
+  const user = users[req.session.user_id];
+  console.log('user:  ', user);
   const templateVars = { 
-    urls: filterUrlByUser(req.cookies.user_id, urlDatabase),
+    urls: filterUrlByUser(req.session.user_id, urlDatabase),
     user
    };
      res.render("urls_index", templateVars);
@@ -83,7 +90,7 @@ app.get("/urls", (req, res) => {
 //GET register
 
 app.get("/register", (req, res) => {
-  const user = users[req.cookies.user_id];
+  const user = users[req.session.user_id];
   const templateVars = { 
     urls: urlDatabase,
     user
@@ -106,8 +113,8 @@ app.post("/register", (req, res) => {
       hashPassword,
       id
     } 
-    res.cookie('user_id', id);
-    console.log(users);
+    req.session.user_id = id;
+    console.log('user_id', id);
     res.redirect("/urls");
 
   } else {
@@ -118,7 +125,7 @@ app.post("/register", (req, res) => {
 //GET login
 
 app.get("/login", (req,res) => {
-  const user = users[req.cookies.user_id]
+  const user = users[req.session.user_id]
   const templateVars = { user }
   res.render("login", templateVars)
 } )
@@ -134,7 +141,7 @@ app.post("/login", (req, res) => {
     if (email === users[user].email && bcrypt.compareSync(password, users[user].hashPassword)) {
         //login
         //set cookie
-        res.cookie('user_id', user)
+        req.session.user_id = user;
         res.redirect("/urls/");
         return;
     }
@@ -148,7 +155,7 @@ app.post("/login", (req, res) => {
 })
 
 app.get("/urls/new", (req, res) => {
-  const user = users[req.cookies.user_id];
+  const user = users[req.session.user_id];
   const templateVars = { 
     urls: urlDatabase,
     user
@@ -164,7 +171,7 @@ app.get("/urls/new", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-  const user = req.cookies.user_id;
+  const user = req.session.user_id;
   
   if (urlDatabase[shortURL].userID === user) {    
     delete urlDatabase[shortURL]
@@ -180,7 +187,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/update/:id", (req, res) => {
   const newlongURL = req.body.update;
   const shortURL = req.params.id;
-  const user = req.cookies.user_id;
+  const user = req.session.user_id;
   console.log('newl:  ', newlongURL);
   console.log('short:  ', shortURL);
   urlDatabase[shortURL].longURL = newlongURL
@@ -199,7 +206,7 @@ app.post("/urls/update/:id", (req, res) => {
 
 app.post("/login", (req, res) => {
   const user_id = req.body.user_id;
-  res.cookie('user_id', user_id)
+  req.session.user_id = user_id;
   console.log(user_id);
   res.redirect('/urls/');
 })
@@ -207,21 +214,21 @@ app.post("/login", (req, res) => {
 //logout
 
 app.post("/logout", (req, res) => {
-  const user_id = req.cookies.user_id
-  res.clearCookie('user_id', user_id)
+  const user_id = req.session.user_id
+  req.session = null;
   res.redirect('/urls/');
 })
 
 // generate a new shorturl
 
 app.post("/urls", (req, res) => {
-  const user = users[req.cookies.user_id];
+  const user = users[req.session.user_id];
   if (user) {
     const short = generateRandomString();
     console.log(req.body.longURL)
     urlDatabase[short] = {
       longURL : req.body.longURL,
-      userID : req.cookies.user_id
+      userID : req.session.user_id
     }
 
     res.redirect(`/urls/${short}`);
@@ -232,7 +239,7 @@ app.post("/urls", (req, res) => {
 
 
 app.get("/urls/:shortURL", (req, res) => {
-  const user = req.cookies.user_id;
+  const user = req.session.user_id;
   const shortURL = req.params.shortURL;
   const templateVars = 
   { user,
