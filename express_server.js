@@ -72,7 +72,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id];
   const templateVars = { 
-    urls: filterUrlByUser(user, urlDatabase),
+    urls: filterUrlByUser(req.cookies.user_id, urlDatabase),
     user
    };
      res.render("urls_index", templateVars);
@@ -161,9 +161,14 @@ app.get("/urls/new", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL]
-  res.redirect('/urls')
-
+  const user = req.cookies.user_id;
+  
+  if (urlDatabase[shortURL].userID === user) {    
+    delete urlDatabase[shortURL]
+    res.redirect('/urls')
+  } else {
+    res.send("Error 403: You may only delete your own urls")
+  }
 
 })
 
@@ -176,7 +181,7 @@ app.post("/urls/update/:id", (req, res) => {
   console.log('newl:  ', newlongURL);
   console.log('short:  ', shortURL);
   urlDatabase[shortURL].longURL = newlongURL
-  console.log(urlDatabase)
+  console.log("database id:", urlDatabase[shortURL].userID, "user from cookies: ", user)
   if (urlDatabase[shortURL].userID === user) {
 
     res.redirect('/urls')
@@ -213,7 +218,7 @@ app.post("/urls", (req, res) => {
     console.log(req.body.longURL)
     urlDatabase[short] = {
       longURL : req.body.longURL,
-      userID : user
+      userID : req.cookies.user_id
     }
 
     res.redirect(`/urls/${short}`);
@@ -225,12 +230,13 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const user = req.cookies.user_id;
+  const shortURL = req.params.shortURL;
   const templateVars = 
   { user,
-    shortURL: req.params.shortURL,
+    shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL
    };
-  res.render("urls_show", templateVars);
+     res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
