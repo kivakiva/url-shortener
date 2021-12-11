@@ -26,9 +26,9 @@ const urlDatabase = {
     longURL: "https://www.tsn.ca",
     userID: "aJ48lW"
   },
-  i3BoGr: {
+  aaa: {
     longURL: "https://www.google.ca",
-    userID: "aJ48lW"
+    userID: "bcw123"
   }
 };
 
@@ -47,20 +47,36 @@ const users = {
 };
 
 
-
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
 app.listen(PORT, () => {
   console.log(`Tinyurl app listening on port ${PORT}!`);
 });
+
+//GET homepage
+
+app.get("/", (req, res) => {
+  const user = users[req.session.user_id];
+
+  if (user) {
+    res.redirect("/urls");
+
+  } else {
+    res.redirect("/login");
+  }});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-//GET homepage
+//GET redirect from short to long
+
+app.get("/u/:id", (req, res) => {
+  const shortURL = req.params.id;
+  const redirectURL = urlDatabase[shortURL].longURL;
+
+  res.redirect(redirectURL);
+});
+
+//GET user's urls
 
 app.get("/urls", (req, res) => {
   const user = users[req.session.user_id];
@@ -189,7 +205,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //POST update existing url
 
-app.post("/urls/update/:id", (req, res) => {
+app.post("/urls/:id", (req, res) => {
 
   const newlongURL = req.body.update;
   const shortURL = req.params.id;
@@ -233,20 +249,17 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const user = req.session.user_id;
   const shortURL = req.params.shortURL;
-  const templateVars =
-  { user,
-    shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL
-  };
 
-  res.render("urls_show", templateVars);
-});
-
-//GET redirect from short to long
-
-app.get("/u/:shortURL", (req, res) => {
-
-  const longURL = urlDatabase[req.params.shortURL].longURL;
+  if (!urlDatabase[shortURL]) {
+    res.send("403: This short url does not exist")
+  } else {
+    const templateVars =
+    { user,
+      shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL
+    };
   
-  res.redirect(longURL);
+    res.render("urls_show", templateVars);
+  }
+
 });
